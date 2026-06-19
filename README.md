@@ -1,6 +1,6 @@
 # MemDBG Plugin Repository
 
-repository link:
+This folder is the bundled copy of the default MemDBG plugin source:
 
 `https://github.com/seregonwar/MemDBG-Plugin`
 

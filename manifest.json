@@ -76,6 +76,43 @@
           "url": "sdk/memdbg.py"
         }
       ]
+    },
+    {
+      "id": "io.github.seregonwar.memdbg.example-gui",
+      "name": "Example GUI Plugin",
+      "version": "1.0.0",
+      "language": "python",
+      "entry": "example_gui_plugin.py",
+      "summary": "Interactive ImGui dashboard built from Python.",
+      "description": "Demonstrates the MemDBG GUI plugin system: a persistent Python process that draws native ImGui widgets in the frontend. Includes process selection, memory reading, and a live process table — all rendered through an interactive widget tree communicated via JSON-RPC over stdio.",
+      "author": "SeregonWar",
+      "icon": "assets/context-dump.png",
+      "license": "GPL-3.0-or-later",
+      "homepage": "https://github.com/seregonwar/MemDBG-Plugin",
+      "tags": ["template", "python", "gui"],
+      "permissions": ["read_context", "process_list", "memory_read"],
+      "files": [
+        {
+          "path": "example_gui_plugin.py",
+          "url": "plugins/example_gui_plugin.py"
+        },
+        {
+          "path": "memdbg.py",
+          "url": "sdk/memdbg.py"
+        },
+        {
+          "path": "__init__.py",
+          "url": "mcp_server/__init__.py"
+        },
+        {
+          "path": "protocol.py",
+          "url": "mcp_server/protocol.py"
+        },
+        {
+          "path": "gui.py",
+          "url": "mcp_server/gui.py"
+        }
+      ]
     }
   ]
 }

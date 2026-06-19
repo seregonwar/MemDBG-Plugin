@@ -24,6 +24,11 @@ CMD_PROCESS_MAPS = 0x0101
 CMD_PROCESS_INFO = 0x0102
 CMD_MEMORY_READ = 0x0200
 CMD_MEMORY_WRITE = 0x0201
+CMD_BATCH_READ = 0x0202
+CMD_BATCH_WRITE = 0x0203
+
+BATCH_READ_MAX_ITEMS = 64
+BATCH_WRITE_MAX_ITEMS = 64
 
 
 class MemDBGError(RuntimeError):
@@ -177,6 +182,74 @@ class MemDBG:
         payload = struct.pack("<iQI", target, int(address), len(data)) + bytes(data)
         raw = self.request(CMD_MEMORY_WRITE, payload)
         return struct.unpack_from("<I", raw, 0)[0]
+
+    def batch_read(self, items: List[Dict[str, int]],
+                   pid: Optional[int] = None) -> List[Dict[str, Any]]:
+        """Read up to 64 memory regions in a single efficient request.
+
+        Args:
+            items: List of {"address": int, "length": int} dicts. Max 64 items.
+            pid: Optional process ID.
+
+        Returns:
+            List of {"address": int, "length": int, "status": int,
+                     "data": str (base64)} dicts, one per requested item.
+        """
+        if not items or len(items) == 0:
+            raise MemDBGError("batch_read requires at least one item")
+        if len(items) > BATCH_READ_MAX_ITEMS:
+            raise MemDBGError(
+                f"batch_read: max {BATCH_READ_MAX_ITEMS} items per request"
+            )
+
+        target = int(pid if pid is not None else self.selected_pid)
+        count = len(items)
+
+        # Build request: header + items[] + inline data (no inline data for read)
+        header = struct.pack("<iII", target, count, 0)
+        body = header
+        for item in items:
+            if "address" not in item:
+                raise MemDBGError("batch_read: each item must have an 'address' key")
+            addr = int(item["address"])
+            length = int(item.get("length", 4))
+            body += struct.pack("<QII", addr, length, 0)
+
+        raw = self.request(CMD_BATCH_READ, body)
+
+        # NOTE: LZ4 decompression is not handled here — the payload
+        # returns uncompressed data for batch_read responses.
+
+        # Parse response: count * result_entry + concatenated data bytes
+        out: List[Dict[str, Any]] = []
+        off = 0
+        for _ in range(count):
+            if off + 16 > len(raw):
+                raise MemDBGError("batch_read: short response")
+            addr, length, status = struct.unpack_from("<QII", raw, off)
+            off += 16
+            out.append({
+                "address": addr,
+                "length": length,
+                "status": status,
+                "data": "",
+            })
+
+        # Remaining bytes are the concatenated data for successful reads
+        data_off = off
+        for entry in out:
+            if entry["status"] == 0 and entry["length"] > 0:
+                end = data_off + entry["length"]
+                if end > len(raw):
+                    raise MemDBGError("batch_read: data overrun")
+                entry["data"] = base64.b64encode(
+                    raw[data_off:end]
+                ).decode("ascii")
+                data_off = end
+            else:
+                entry["data"] = ""
+
+        return out
 
 
 def _mcp_read_message(stdin) -> Optional[Dict[str, Any]]:
