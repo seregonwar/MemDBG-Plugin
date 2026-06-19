@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "name": "MemDBG Plugin Repository",
+  "identifier": "io.github.seregonwar.memdbg.plugins",
+  "description": "Default forkable plugin source for MemDBG Lua and Python scripts.",
+  "homepage": "https://github.com/seregonwar/MemDBG-Plugin",
+  "maintainer": "SeregonWar",
+  "plugins": [
+    {
+      "id": "io.github.seregonwar.memdbg.context-dump",
+      "name": "Context Dump",
+      "version": "1.0.0",
+      "language": "python",
+      "entry": "context_dump.py",
+      "summary": "Prints the MemDBG runtime context passed to plugins.",
+      "description": "Prints the MemDBG runtime context passed to plugins. Useful as a template for Python automation plugins because it shows the console, process, paths, scan counts, trainer counts, payload protocol version, and optional live API access from a single script.",
+      "author": "SeregonWar",
+      "icon": "assets/context-dump.png",
+      "license": "GPL-3.0-or-later",
+      "homepage": "https://github.com/seregonwar/MemDBG-Plugin",
+      "tags": ["template", "python", "diagnostics"],
+      "permissions": ["read_context"],
+      "files": [
+        {
+          "path": "context_dump.py",
+          "url": "plugins/context_dump.py"
+        },
+        {
+          "path": "memdbg.py",
+          "url": "sdk/memdbg.py"
+        }
+      ]
+    },
+    {
+      "id": "io.github.seregonwar.memdbg.session-brief",
+      "name": "Session Brief",
+      "version": "1.0.0",
+      "language": "lua",
+      "entry": "session_brief.lua",
+      "summary": "Shows a compact Lua-generated session summary.",
+      "description": "Shows a compact Lua-generated summary of the active console, selected process, loaded maps, scan hits, and trainer entries. It is intended as a simple Lua template for read-only dashboard plugins that need to inspect the MemDBG context without talking directly to the payload.",
+      "author": "SeregonWar",
+      "icon": "assets/session-brief.png",
+      "license": "GPL-3.0-or-later",
+      "homepage": "https://github.com/seregonwar/MemDBG-Plugin",
+      "tags": ["template", "lua", "session"],
+      "permissions": ["read_context"],
+      "files": [
+        {
+          "path": "session_brief.lua",
+          "url": "plugins/session_brief.lua"
+        }
+      ]
+    },
+    {
+      "id": "io.github.seregonwar.memdbg.mcp-stdio-bridge",
+      "name": "MCP Stdio Bridge",
+      "version": "0.1.0",
+      "language": "python",
+      "entry": "mcp_stdio_bridge.py",
+      "summary": "Template MCP stdio server for MemDBG automation.",
+      "description": "Template MCP stdio server exposing MemDBG process and memory tools through the Python plugin SDK. It can be launched with stdio mode by an external client and demonstrates how community plugins can bridge MemDBG into Python automation, assistant tools, and local MCP workflows without blocking the normal UI plugin runner.",
+      "author": "SeregonWar",
+      "icon": "assets/mcp-bridge.png",
+      "license": "GPL-3.0-or-later",
+      "homepage": "https://github.com/seregonwar/MemDBG-Plugin",
+      "tags": ["template", "python", "mcp", "api"],
+      "permissions": ["read_context", "process_list", "process_maps", "memory_read"],
+      "files": [
+        {
+          "path": "mcp_stdio_bridge.py",
+          "url": "plugins/mcp_stdio_bridge.py"
+        },
+        {
+          "path": "memdbg.py",
+          "url": "sdk/memdbg.py"
+        }
+      ]
+    }
+  ]
+}
