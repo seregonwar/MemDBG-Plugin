@@ -115,6 +115,14 @@
         {
           "path": "mcp_server/plugin_config.py",
           "url": "mcp_server/plugin_config.py"
+        },
+        {
+          "path": "mcp_server/server.py",
+          "url": "mcp_server/server.py"
+        },
+        {
+          "path": "mcp_server/tools.py",
+          "url": "mcp_server/tools.py"
         }
       ]
     }

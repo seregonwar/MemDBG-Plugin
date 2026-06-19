@@ -21,14 +21,19 @@ from typing import Any, Dict, List
 
 # Ensure the SDK and mcp_server are importable
 _plugin_dir = os.path.dirname(os.path.abspath(__file__))
-_repo_dir = os.path.dirname(_plugin_dir)
-if _repo_dir not in sys.path:
-    sys.path.insert(0, _repo_dir)
+if _plugin_dir not in sys.path:
+    sys.path.insert(0, _plugin_dir)
 
 from memdbg import MemDBG, MemDBGError, load_context
-from mcp_server.config import PluginConfig
-from mcp_server.gui import GuiBuilder
-from mcp_server.protocol import read_message, GuiEvent
+
+try:
+    from mcp_server.plugin_config import PluginConfig
+    from mcp_server.gui import GuiBuilder
+    from mcp_server.protocol import read_message, GuiEvent
+except ImportError:
+    from plugin_config import PluginConfig
+    from gui import GuiBuilder
+    from protocol import read_message, GuiEvent
 
 
 # ---------------------------------------------------------------------------
@@ -100,10 +105,14 @@ def main() -> int:
         gui.set_value("sl_demo_threshold", 50.0)
 
     # Seed batch_items into auto-state (complex structured data)
-    gui.set_value("batch_items", [
+    default_batch = [
         {"address": 0x0, "label": "Example addr", "value_type": "hex",
          "length": 8, "value": "..."},
-    ])
+    ]
+    gui.set_value("batch_items", default_batch)
+
+    # Seed per-item edit fields from batch_items (auto-state)
+    _seed_batch_edits(gui, default_batch)
 
     while True:
         # --- Read events from frontend ---
@@ -189,6 +198,10 @@ def main() -> int:
         # (read live slider/batch values for use in build_ui)
         _demo_threshold = float(gui.get_value("sl_demo_threshold", 50.0))
         batch_items: List[Dict[str, Any]] = gui.get_value("batch_items", [])
+
+        # Sync editable batch fields back to batch_items on user edit
+        _sync_batch_edits(gui, batch_items)
+
         build_ui(gui, state, _demo_threshold, batch_items)
 
         # --- Flush to frontend ---
@@ -299,6 +312,18 @@ def build_ui(gui: GuiBuilder, state: PluginState,
         except Exception:
             pass
 
+    # --- Editable batch item fields ---
+    gui.text("Edit Items", color="primary")
+    for i, item in enumerate(batch_items):
+        widget_id_addr = f"batch_addr_{i}"
+        widget_id_label = f"batch_label_{i}"
+        gui.input_text(widget_id_addr, f"Addr #{i}",
+                       hint="0x...")
+        gui.same_line()
+        gui.input_text(widget_id_label, f"Label #{i}",
+                       hint="name")
+    gui.spacing()
+
     gui.batch_read_table("batch_view", items=batch_items, height=180)
 
     # --- Process list table ---
@@ -310,6 +335,33 @@ def build_ui(gui: GuiBuilder, state: PluginState,
         gui.table("table_procs", headers=headers, rows=rows, height=200)
     else:
         gui.text("Click Refresh to load processes", color="dim")
+
+
+def _seed_batch_edits(gui: GuiBuilder, items: List[Dict[str, Any]]) -> None:
+    """Seed per-item input fields from an initial batch_items list."""
+    for i, item in enumerate(items):
+        gui.set_value(f"batch_addr_{i}", f"0x{item.get('address', 0):X}")
+        gui.set_value(f"batch_label_{i}", str(item.get("label", "")))
+
+
+def _sync_batch_edits(gui: GuiBuilder, items: List[Dict[str, Any]]) -> None:
+    """Detect edits on batch_addr_N / batch_label_N and persist to items."""
+    changed = False
+    for i, item in enumerate(items):
+        addr_id = f"batch_addr_{i}"
+        label_id = f"batch_label_{i}"
+        if gui.was_edited(addr_id):
+            hex_str = str(gui.get_value(addr_id, "0x0"))
+            try:
+                item["address"] = int(hex_str, 16)
+            except (ValueError, TypeError):
+                pass
+            changed = True
+        if gui.was_edited(label_id):
+            item["label"] = str(gui.get_value(label_id, ""))
+            changed = True
+    if changed:
+        gui.set_value("batch_items", items)
 
 
 def format_value(raw: bytes, value_type: str) -> str:
