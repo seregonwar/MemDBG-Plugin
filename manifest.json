@@ -125,6 +125,55 @@
           "url": "mcp_server/tools.py"
         }
       ]
+    },
+    {
+      "id": "io.github.seregonwar.memdbg.mcp-manager",
+      "name": "MCP Server Manager",
+      "version": "1.0.0",
+      "language": "python",
+      "entry": "mcp_manager.py",
+      "summary": "GUI dashboard to start/stop the MCP server, view activity logs, explore tools, and configure server settings.",
+      "description": "Provides a complete management interface for the MemDBG MCP server. Start/stop the TCP server, monitor real-time activity logs (connections, tool calls, responses), browse and test available MCP tools, and configure which tools are enabled. The MCP server runs as a managed subprocess on a configurable TCP port.",
+      "author": "SeregonWar",
+      "icon": "assets/mcp-bridge.png",
+      "license": "GPL-3.0-or-later",
+      "homepage": "https://github.com/seregonwar/MemDBG-Plugin",
+      "tags": ["mcp", "server", "management", "gui", "python"],
+      "permissions": ["read_context", "process_list", "process_maps", "memory_read"],
+      "files": [
+        {
+          "path": "mcp_manager.py",
+          "url": "plugins/mcp_manager.py"
+        },
+        {
+          "path": "memdbg.py",
+          "url": "sdk/memdbg.py"
+        },
+        {
+          "path": "mcp_server/__init__.py",
+          "url": "mcp_server/__init__.py"
+        },
+        {
+          "path": "mcp_server/protocol.py",
+          "url": "mcp_server/protocol.py"
+        },
+        {
+          "path": "mcp_server/gui.py",
+          "url": "mcp_server/gui.py"
+        },
+        {
+          "path": "mcp_server/plugin_config.py",
+          "url": "mcp_server/plugin_config.py"
+        },
+        {
+          "path": "mcp_server/server.py",
+          "url": "mcp_server/server.py"
+        },
+        {
+          "path": "mcp_server/tools.py",
+          "url": "mcp_server/tools.py"
+        }
+      ]
     }
   ]
 }

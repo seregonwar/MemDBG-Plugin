@@ -172,19 +172,20 @@ def main() -> int:
                 state.status = f"Selected PID {state.selected_pid}"
 
         # --- Background refresh ---
-        if state.refresh_requested and state.api is not None:
-            try:
-                state.processes = state.api.process_list()
-                # Seed the combo auto-state with the index of the current PID
-                selected_idx = 0
-                for i, p in enumerate(state.processes):
-                    if p.get("pid", 0) == state.selected_pid:
-                        selected_idx = i
-                        break
-                gui.set_value("combo_process", selected_idx)
-                state.status = f"Loaded {len(state.processes)} processes"
-            except MemDBGError as exc:
-                state.status = f"Process list error: {exc}"
+        if state.refresh_requested:
+            if state.api is not None:
+                try:
+                    state.processes = state.api.process_list()
+                    # Seed the combo auto-state with the index of the current PID
+                    selected_idx = 0
+                    for i, p in enumerate(state.processes):
+                        if p.get("pid", 0) == state.selected_pid:
+                            selected_idx = i
+                            break
+                    gui.set_value("combo_process", selected_idx)
+                    state.status = f"Loaded {len(state.processes)} processes"
+                except MemDBGError as exc:
+                    state.status = f"Process list error: {exc}"
             state.refresh_requested = False
 
         # --- Live-refresh timer ---
@@ -229,12 +230,10 @@ def build_ui(gui: GuiBuilder, state: PluginState,
     gui.spacing()
 
     # --- Connection info ---
-    gui.begin_child("info_panel", width=0, height=0, border=True)
     if state.api is not None:
         gui.text("Payload connected", color="success")
     else:
         gui.text("No payload connection", color="danger")
-    gui.end_child()
     gui.spacing()
 
     # --- Process selector ---

@@ -434,14 +434,17 @@ class GuiBuilder:
 
     def _process_stdin(self) -> None:
         self._events.clear()
+        # Don't block if no data available (non-blocking check via select)
+        import select
+        ready, _, _ = select.select([sys.stdin.buffer], [], [], 0.0)
+        if not ready:
+            return
         from .protocol import read_message as _read
         try:
-            while True:
-                raw = _read()
-                if raw is None:
-                    break
+            raw = _read()
+            if raw is not None:
                 self._ingest_message(raw)
-        except (EOFError, IOError, BlockingIOError):
+        except (EOFError, IOError):
             pass
 
     def _ingest_message(self, raw: Dict[str, Any]) -> None:
