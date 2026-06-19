@@ -101,16 +101,20 @@
           "url": "sdk/memdbg.py"
         },
         {
-          "path": "__init__.py",
+          "path": "mcp_server/__init__.py",
           "url": "mcp_server/__init__.py"
         },
         {
-          "path": "protocol.py",
+          "path": "mcp_server/protocol.py",
           "url": "mcp_server/protocol.py"
         },
         {
-          "path": "gui.py",
+          "path": "mcp_server/gui.py",
           "url": "mcp_server/gui.py"
+        },
+        {
+          "path": "mcp_server/plugin_config.py",
+          "url": "mcp_server/plugin_config.py"
         }
       ]
     }
